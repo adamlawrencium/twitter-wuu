@@ -38,6 +38,7 @@ def clientthread(conn):
         #Receiving from client
         data = conn.recv(1024)
         reply = 'OK...' + data
+        print reply + '****'
         if not data:
             break
 
@@ -47,13 +48,13 @@ def clientthread(conn):
     conn.close()
 
 
-#now keep talking with the client
+# Now keep talking with the client
 while 1:
     #wait to accept a connection - blocking call
-    command = raw_input("command:")
-    print command
-    if command == "quit":
-      break
+    # command = raw_input("command:")
+    # print command
+    # if command == "quit":
+    #   break
 
     conn, addr = s.accept()
     print 'Connected with ' + addr[0] + ':' + str(addr[1])
