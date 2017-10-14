@@ -22,6 +22,8 @@ class Client(asyncore.dispatcher_with_send):
 	def __init__(self, host, port, message):
 		asyncore.dispatcher.__init__(self)
 		self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.host = host
+		self.port = port
 		self.connect((host, port))
 		self.out_buffer = message
 		self.message = message
@@ -34,11 +36,12 @@ class Client(asyncore.dispatcher_with_send):
 		self.close()
 
 	def handle_write(self):
-		self.send(self.message)
-		self.close()
+		# self.send(self.message)
+		# self.close()
+		pass
 
 	def handle_error(self):
-		print 'error occured'
+		print "Can't connect to peer at %s:%s" % (self.host, self.port)
 
 
 
@@ -89,7 +92,7 @@ class myThread (threading.Thread):
 				time.sleep(0.5)
 				command = raw_input("Please enter a command:\n")
 				if command[:6] == "tweet ":
-					self.tweetToAll(command[6:]) # testing for now
+					self.tweetToAll(command[6:])
 				elif command == "view":
 					print self.peers
 				elif command == "quit":
@@ -111,10 +114,9 @@ class myThread (threading.Thread):
 	def tweetToAll(self, msg):
 		for peerPort in self.peers: # avoid connecting to self
 			if peerPort != int(sys.argv[1]):
-				print "### Sending", msg, "to", peerPort
+				# print "### Sending", msg, "to", peerPort
 				c = Client('', peerPort, msg) # send <msg> to localhost at port <peerPort>
 				asyncore.loop(count = 1)
-			# print 'starting loop'
 
 
 class ServiceExit(Exception):
