@@ -85,15 +85,15 @@ class User:
         eventRecord = insert("block",receiver,time)
         ### add truncation code here for log
         for i in range(0,len(blockedUsers)):
-            if(blockedIds[i][0] == userId && blockedIds[i][1] == receiver):
+            if(blockedIds[i][0] == userId and blockedIds[i][1] == receiver):
                 blocked = True
-        if(not blocked)
+        if(not (blocked)):
             blockedUsers.append((userId,receiver))
 
     def unblock(time,receiver):
         print "Unblocked User "+receiver+"\n"
         for i in range(0,len(blockedIds)):
-            if(blockedIds[i][0] == userId && blockedIds[i][1] == receiver):
+            if(blockedIds[i][0] == userId and blockedIds[i][1] == receiver):
                 del blockedUsers[i]
                 break
         eventRecord = insert("unblock","",time)
@@ -105,7 +105,7 @@ class User:
             currentEvent = eventLog[i]
             eventType = currentEvent[0]
             eventCreator =  currentEvent[3]
-            if(eventType == "tweet" && blockedUsers[eventCreator] == "unblock")
+            if(eventType == "tweet" and blockedUsers[eventCreator] == "unblock"):
                 print eventType + "\n"
         eventRecord = insert("view","",time)
 
@@ -131,9 +131,9 @@ class User:
             receiverId = NE[i][3]
             if(blockEvent == "block"):
                 blockedUsers.append((receiverId,blockReceiver))
-            if(blockEvent == "unblock")
+            if(blockEvent == "unblock"):
                 for j in range(0,len(blockedUsers)):
-                    if(blockedUsers[j][0] == receiverId && blockedUsers[j][1] == blockReceiver)):
+                    if(blockedUsers[j][0] == receiverId and blockedUsers[j][1] == blockReceiver):
                         del blockedUsers[i]
                         break
         #The first item in the received message contains the ID of the sender
@@ -156,4 +156,3 @@ class User:
                     clearedLog.append(currentRecord)
         #the eventLog changes to this filled once clearedLog
         eventLog = clearedLog
-        
