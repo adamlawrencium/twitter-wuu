@@ -92,7 +92,7 @@ class myThread (threading.Thread):
 		# self.peers = [int(line.rstrip('\n')) for line in open('peers.txt')]
 		# self.names = [line.rstrip('\n') for line in open('names.txt')]
 		
-		self.peers = [int(line.rstrip('\n')).split(' ')[2] for line in open('EC2-peers.txt')]
+		self.peers = [int((line.rstrip('\n')).split(' ')[2]) for line in open('EC2-peers.txt')]
 		self.names = [line.rstrip('\n').split(' ')[0] for line in open('EC2-peers.txt')]
 		self.ec2ips = [line.rstrip('\n').split(' ')[1] for line in open('EC2-peers.txt')]
 
@@ -201,6 +201,7 @@ if __name__ == "__main__":
 
 		local port needs to match port of current EC2 instance
 	"""
+
 
 	# Register the signal handlers
 	signal.signal(signal.SIGTERM, service_shutdown)
