@@ -113,8 +113,6 @@ class myThread (threading.Thread):
 					raise KeyboardInterrupt
 					self.shutdown_flag = True
 				elif command == "unblock ":
-					unblock()
-				elif command[:6] == "block ":
 					name = command[6:]
 					siteName = sys.argv[2]
 					for i in range(0,len(self.names)):
@@ -123,8 +121,23 @@ class myThread (threading.Thread):
 							break
 					utc_datetime = datetime.datetime.utcnow()
 					utcTime = utc_datetime.strftime("%Y-%m-%d %H:%M:%S")
+					site.unblock(utcTime,(int(name[0])-1))
+
+				elif command[:6] == "block ":
+					name = command[6:]
+					siteName = sys.argv[2]
+					for i in range(0,len(self.names)):
+						if(name == self.names[i]):
+							name = self.peers[i]
+							break
+					utc_datetime = datetime.datetime.utcnow()
+					utcTime = utc_datetime.strftime("%Y-%m-%d %H:%M:%S")
 					print "Blocking User: "+command[6:]
 					site.block(utcTime,(int(name[0])-1))
+				elif command == "View Log":
+					site.viewPartialLog()
+				elif command == "View Clock":
+					site.viewMatrixClock()
 
 
 				else:
@@ -145,12 +158,15 @@ class myThread (threading.Thread):
  				dilledMessage = dill.dumps(fullMessage)
 				c = Client('', peerPort, dilledMessage) # send <msg> to localhost at port <peerPort>
 				asyncore.loop(count = 1)
-			# else:
-			# 	check = (peerPort in nonBlockedPorts)
-			# 	print check
-			# 	if peerPort != int(sys.argv[1]) and len(nonBlockedPorts) > 0 and check:
-			# 		c = Client('', peerPort, msg) # send <msg> to localhost at port <peerPort>
-			# 		asyncore.loop(count = 1)
+			else:
+				nonBlockedPorts = site.nonBlockedPorts()
+				check = (peerPort in nonBlockedPorts)
+				print check
+				if peerPort != int(sys.argv[1]) and len(nonBlockedPorts) > 0 and check:
+					fullMessage = site.send(msg,peerPort)
+	 				dilledMessage = dill.dumps(fullMessage)
+					c = Client('', peerPort, dilledMessage) # send <msg> to localhost at port <peerPort>
+					asyncore.loop(count = 1)
 
 
 

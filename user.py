@@ -29,7 +29,7 @@ class User:
             for j in range(0,len(self.peers)):
                 newList.append(0)
             self.matrixClock.append(newList)
-        print self.matrixClock
+
 
     """
     Checks if a matrixClock contains a timestamp larger than what's in the eventRecord.
@@ -41,10 +41,7 @@ class User:
         If fals is returned the process does not know the most recent event
     """
     def hasRec(self,receivedClock,eventRecord,receiver):
-        print "crashing"
-        print receivedClock[receiver]
-        print receivedClock[eventRecord[3]]
-        print eventRecord[2]
+
         return receivedClock[receiver][eventRecord[3]] >= eventRecord[2]
 
     """""
@@ -69,8 +66,7 @@ class User:
         self.eventCounter += 1
         self.matrixClock[self.userId][self.userId] = self.eventCounter
         eventRecord = (eventName,message,self.eventCounter,self.userId,time)
-        print "Inserting following: "
-        print eventRecord
+
         self.eventLog.append(eventRecord)
         return eventRecord
 
@@ -164,9 +160,7 @@ class User:
             else:
                 if(eventType == "tweet"):
                     acceptableTweets.append(currentEvent)
-
         print acceptableTweets
-        eventRecord = self.insertion("view","",time)
 
     def receive(self,message,receivedClock,receivedNP):
         #sentID = -1
@@ -199,38 +193,47 @@ class User:
         sender = message[3]
         fullUnion = self.eventLog + NE
         for k in range(0,len(self.peers)):
-            self.matrixClock[self.userId][k] = max(self.matrixClock[self.userId][k],receivedClock[sender][k])
+            if self.matrixClock[self.userId][k] > receivedClock[sender][k]:
+                self.maxtrixClock[self.userId][k] = self.matrixClock[self.userId][k]
+            else:
+                self.matrixClock[self.userId][k] = receivedClock[sender][k]
 
         clearedLog = list()
         #the combination of k and l will correctly update the matrixClock
         for k in range(0,len(self.peers)):
-
             for l in range(0,len(self.peers)):
-                self.matrixClock[self.userId][k] = max(self.matrixClock[k][l],receivedClock[k][l])
+                self.matrixClock[k][l] = max(self.matrixClock[k][l],receivedClock[k][l])
 
-            #the m loop goes through the fullUnion of the partialLog and eventRecord
-            #the loop checks for all relevant partialLog options
-            print NE
-            for m in range(0,len(fullUnion)):
-                print
-                print "going again"
-                currentRecord = fullUnion[m]
+
+        #the m loop goes through the fullUnion of the partialLog and eventRecord
+        #the loop checks for all relevant partialLog options
+
+        for m in range(0,len(fullUnion)):
+            currentRecord = fullUnion[m]
+            for k in range(0,len(self.peers)):
                 if(not self.hasRec(self.matrixClock,currentRecord,k)):
-                    print "checked a receive!"
                     clearedLog.append(currentRecord)
+                    break
+
         #the eventLog changes to this filled once clearedLog
         self.eventLog = clearedLog
-        print "done"
+
     def nonBlockedPorts(self):
         nonBlocked = self.peers
 
         for i in range(0,len(self.blockedUsers)):
-            print self.userId
-            print self.blockedUsers[i][0]
+
             if self.blockedUsers[i][0] == self.userId:
                 for j in range(0,len(nonBlocked)):
-                    print nonBlocked[i]
                     if(nonBlocked[i] == self.blockedUsers[i][0]):
                         del nonBlocked[i]
                         break
         return nonBlocked
+
+    def viewMatrixClock(self):
+        for i in range(0,len(self.matrixClock)):
+            print self.matrixClock[i]
+
+    def viewPartialLog(self):
+        for i in range(0,len(self.eventLog)):
+            print self.eventLog[i]
