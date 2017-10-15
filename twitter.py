@@ -102,7 +102,7 @@ class myThread (threading.Thread):
 		if self.name == 'commandThread':
 			while 1:
 				time.sleep(0.2)
-				command = raw_input("Please enter a command:\n")
+				command = raw_input("\nPlease enter a command:\n")
 				if command[:6] == "tweet ":
 					messageBody = command[6:]
 					utcDatetime = datetime.datetime.utcnow()
@@ -215,6 +215,8 @@ if __name__ == "__main__":
 
 	# peers are port numbers --> should switch to IP
 	# userId is 'Alice' -> 'A' -> 96
+
+
 	allIds = commandThread.peers
 	site = User(sys.argv[2][0], allIds)
 
