@@ -38,10 +38,10 @@ class Client(asyncore.dispatcher_with_send):
 		print 'Received', self.recv(1024)
 		self.close()
 
-	def handle_write(self):
-		# self.send(self.message)
-		# self.close()
-		pass
+	# def handle_write(self):
+	# 	self.send(self.message)
+	# 	self.close()
+	# 	pass
 
 	def handle_error(self):
 		print "Can't connect to peer at %s:%s" % (self.host, self.port)
@@ -52,7 +52,10 @@ class EchoHandler(asyncore.dispatcher_with_send):
 	def handle_read(self):
 		data = self.recv(8192)
 		if data:
-			print "Received message:", data.rstrip('\n')
+			serializedMessage = dill.loads(data)
+
+			hey = site.receive(serializedMessage[0],serializedMessage[1],serializedMessage[2])
+			#print "Received message:", data.rstrip('\n')
 			self.send("Thank you for the message.\n")
 
 class Server(asyncore.dispatcher_with_send):
@@ -96,14 +99,15 @@ class myThread (threading.Thread):
 				time.sleep(0.5)
 				command = raw_input("Please enter a command:\n")
 				if command[:6] == "tweet ":
-					messageBody = command[:6]
+					messageBody = command[6:]
 					utcDatetime = datetime.datetime.utcnow()
 					utcTime = utcDatetime.strftime("%Y-%m-%d %H:%M:%S")
-					messageData = site.tweet(self,messageBody,utcTime)
+
+					messageData = site.tweet(command[6:],utcTime)
 					sendingPorts = site.nonBlockedPorts()
-					self.tweetToAll(command[6:],sendingPorts)
+					self.tweetToAll(messageData,sendingPorts)
 				elif command == "view":
-					print self.peers
+					site.view()
 				elif command == "quit":
 					self.shutdown_flag = True
 					raise KeyboardInterrupt
@@ -137,7 +141,9 @@ class myThread (threading.Thread):
 		for peerPort in self.peers: # avoid connecting to self
 			if peerPort != int(sys.argv[1]) and len(sendingPorts) == len(self.peers):
 				# print "### Sending", msg, "to", peerPort
-				c = Client('', peerPort, msg) # send <msg> to localhost at port <peerPort>
+				fullMessage = site.send(msg,peerPort)
+ 				dilledMessage = dill.dumps(fullMessage)
+				c = Client('', peerPort, dilledMessage) # send <msg> to localhost at port <peerPort>
 				asyncore.loop(count = 1)
 			# else:
 			# 	check = (peerPort in nonBlockedPorts)

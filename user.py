@@ -28,7 +28,8 @@ class User:
             newList = list()
             for j in range(0,len(self.peers)):
                 newList.append(0)
-                self.matrixClock.append(newList)
+            self.matrixClock.append(newList)
+        print self.matrixClock
 
     """
     Checks if a matrixClock contains a timestamp larger than what's in the eventRecord.
@@ -40,6 +41,10 @@ class User:
         If fals is returned the process does not know the most recent event
     """
     def hasRec(self,receivedClock,eventRecord,receiver):
+        print "crashing"
+        print receivedClock[receiver]
+        print receivedClock[eventRecord[3]]
+        print eventRecord[2]
         return receivedClock[receiver][eventRecord[3]] >= eventRecord[2]
 
     """""
@@ -53,12 +58,19 @@ class User:
         matrixClock is updated at the indices of the userId
         eventLog has a new eventRecord added to it
     @return
-        returns a tuple containing the eventName, message of event, timestamp, userId, and UTC time
+        returns a tuple containing :
+        [0] -> eventName
+        [1] -> message of event
+        [2] -> timestamp
+        [3] -> userId
+        [4] -> UTC time
     """""
     def insertion(self,eventName,message,time):
         self.eventCounter += 1
         self.matrixClock[self.userId][self.userId] = self.eventCounter
         eventRecord = (eventName,message,self.eventCounter,self.userId,time)
+        print "Inserting following: "
+        print eventRecord
         self.eventLog.append(eventRecord)
         return eventRecord
 
@@ -70,31 +82,27 @@ class User:
         Will modify matrixClock, eventLog. Will send out a message depending
         on what values are not in the blockedUsers list
     @return
-        returns a tuple containg the following:
+        returns a list containg the following:
             [0] -> the sender's userID
             [1] -> the sender's matrixClock
             [2] -> a list containing all the eventRecords
     """
-    def tweet(self,message,time,receiver):
-        print "Sending following tweet %s to all unblocked users\n"%(message)
+    def tweet(self,message,time):
+
         eventRecord = self.insertion("tweet",message,time)
+        return eventRecord
+
+    def send(self,message,receiver):
+        receiverId = (receiver/1111) - 1
         NP = list()
-        #Loop here covers send operation, will only store messageData for tweets
-        #that the local site considers unblocked
         for i in range(0,len(self.eventLog)):
             pastEvent = self.eventLog[i]
-            for k in range(0,len(self.peers)):
-                blocked = False
-                for m in range(0,len(self.blockedUsers)):
-                    if(self.blockedUsers[m][0] == self.userId and self.blockedUsers[m][1] == m):
-                        blocked = True
-                        break
-                mc = self.matrixClock
-                checkReceived = self.hasRec(mc,pastEvent,k)
-                if(not (checkReceived) and not blocked):
-                    NP.append(self.eventRecord,self.matrixClock,pastEvent,self.userId)
-        sendBody = ((self.userId,self.matrixClock,NP))
-        return sendBody
+            mc = self.matrixClock
+            checkReceived = self.hasRec(mc,pastEvent,receiverId)
+            if(not (checkReceived)):
+                NP.append(pastEvent)
+        return (message,self.matrixClock,NP)
+
 
     """"
     The block function will not allow the specificed receiver to recieve
@@ -140,21 +148,31 @@ class User:
         eventRecord = self.insertion("unblock","",time)
 
 
-    def view():
+    def view(self):
         print "View command selected \n"
+        acceptableTweets = list()
         for i in range(0,len(self.eventLog)):
             currentEvent = self.eventLog[i]
             eventType = currentEvent[0]
             eventCreator =  currentEvent[3]
-            if(eventType == "tweet" and self.blockedUsers[eventCreator] == "unblock"):
-                print eventType + "\n"
+
+            if(len(self.blockedUsers) > 0):
+                if(eventType == "tweet"):
+                    for j in range(0,len(self.blockedUsers)):
+                        if(not ((self.blockedUsers[j][0] == self.userId) and (self.blockedUsers[j][1] == eventCreator))):
+                            acceptableTweets.append(currentEvent)
+            else:
+                if(eventType == "tweet"):
+                    acceptableTweets.append(currentEvent)
+
+        print acceptableTweets
         eventRecord = self.insertion("view","",time)
 
-    def receive(message,receivedClock,receivedNP):
-        sentID = -1
-        for k in range(0,len(self.peers)):
-            if(self.peers[k] == sendAddress):
-                self.siteID = self.peers[k]
+    def receive(self,message,receivedClock,receivedNP):
+        #sentID = -1
+        # for k in range(0,len(self.peers)):
+        #     if(self.peers[k] == sendAddress):
+        #         self.siteID = self.peers[k]
         NE = list()
         for i in range(0,len(receivedNP)):
             pastEvent = receivedNP[i]
@@ -178,29 +196,33 @@ class User:
                         del blockedUsers[i]
                         break
         #The first item in the received message contains the ID of the sender
-        sender = message[0]
-        fullUnion = self.eventLog.merge(NE)
+        sender = message[3]
+        fullUnion = self.eventLog + NE
+        for k in range(0,len(self.peers)):
+            self.matrixClock[self.userId][k] = max(self.matrixClock[self.userId][k],receivedClock[sender][k])
 
-        for k in range(0,len(peers)):
-            matrixClock[userId][k] = max(matrixClock[userId][k],receivedClock[sender][k])
-
+        clearedLog = list()
         #the combination of k and l will correctly update the matrixClock
-        for k in range(0,len(peers)):
-            for l in range(0,len(peers)):
+        for k in range(0,len(self.peers)):
+
+            for l in range(0,len(self.peers)):
                 self.matrixClock[self.userId][k] = max(self.matrixClock[k][l],receivedClock[k][l])
-            clearedLog = self.eventLog.clear()
+
             #the m loop goes through the fullUnion of the partialLog and eventRecord
             #the loop checks for all relevant partialLog options
+            print NE
             for m in range(0,len(fullUnion)):
+                print "going again"
                 currentRecord = NE[m]
-                if(not hasRec(matrixClock,currentRecord,k)):
+                if(not self.hasRec(self.matrixClock,currentRecord,k)):
+                    print "checked a receive!"
                     clearedLog.append(currentRecord)
         #the eventLog changes to this filled once clearedLog
-        eventLog = clearedLog
-
+        self.eventLog = clearedLog
+        print "done"
     def nonBlockedPorts(self):
         nonBlocked = self.peers
-        
+
         for i in range(0,len(self.blockedUsers)):
             print self.userId
             print self.blockedUsers[i][0]
