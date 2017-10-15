@@ -212,8 +212,9 @@ class User:
             #the loop checks for all relevant partialLog options
             print NE
             for m in range(0,len(fullUnion)):
+                print
                 print "going again"
-                currentRecord = NE[m]
+                currentRecord = fullUnion[m]
                 if(not self.hasRec(self.matrixClock,currentRecord,k)):
                     print "checked a receive!"
                     clearedLog.append(currentRecord)
