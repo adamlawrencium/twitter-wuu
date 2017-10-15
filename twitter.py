@@ -66,8 +66,6 @@ class Server(asyncore.dispatcher_with_send):
 
 	def handle_accept(self):
 		pair = self.accept()
-		data = self.recv(8192)
-		print data
 		if pair is not None:
 			sock, addr = pair
 			print 'Incoming connection from %s' % repr(addr)
@@ -103,7 +101,6 @@ class myThread (threading.Thread):
 					utcTime = utcDatetime.strftime("%Y-%m-%d %H:%M:%S")
 					messageData = site.tweet(self,messageBody,utcTime)
 					sendingPorts = site.nonBlockedPorts()
-					print sendingPorts
 					self.tweetToAll(command[6:],sendingPorts)
 				elif command == "view":
 					print self.peers
@@ -136,9 +133,9 @@ class myThread (threading.Thread):
 				asyncore.loop()
 
 	# Connect to all peers send them <msg>
-	def tweetToAll(self, msg,nonBlockedPorts):
+	def tweetToAll(self, msg,sendingPorts):
 		for peerPort in self.peers: # avoid connecting to self
-			if peerPort != int(sys.argv[1]) and len(nonBlockedPorts) == len(self.peers):
+			if peerPort != int(sys.argv[1]) and len(sendingPorts) == len(self.peers):
 				# print "### Sending", msg, "to", peerPort
 				c = Client('', peerPort, msg) # send <msg> to localhost at port <peerPort>
 				asyncore.loop(count = 1)
@@ -175,12 +172,12 @@ if __name__ == "__main__":
 
 	# Create new threads
 	commandThread = myThread("commandThread") # takes in raw_inputs and sends tweets to peers
-	allIds = commandThread.peers
-	site = User(sys.argv[2][0],allIds)
 	commandThread.setDaemon(True)
 	serverThread = myThread("serverThread") # handles incoming connections from peers
 	serverThread.setDaemon(True)
 
+	allIds = commandThread.peers
+	site = User(sys.argv[2][0],allIds)
 
 
 
