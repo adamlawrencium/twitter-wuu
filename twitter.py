@@ -101,7 +101,7 @@ class myThread (threading.Thread):
 		# Enter while loop accepting the following commands
 		if self.name == 'commandThread':
 			while 1:
-				time.sleep(0.5)
+				time.sleep(0.2)
 				command = raw_input("Please enter a command:\n")
 				if command[:6] == "tweet ":
 					messageBody = command[6:]
@@ -162,7 +162,7 @@ class myThread (threading.Thread):
 				fullMessage = site.send(msg, peerPort)
  				dilledMessage = dill.dumps(fullMessage)
 				c = Client(self.ec2ips[index], peerPort, dilledMessage) # send <msg> to localhost at port 5555
-				asyncore.loop(count = 1)
+				asyncore.loop(timeout = 5, count = 1)
 			else:
 				nonBlockedPorts = site.nonBlockedPorts()
 				check = (peerPort in nonBlockedPorts)
@@ -171,7 +171,7 @@ class myThread (threading.Thread):
 					fullMessage = site.send(msg, peerPort)
 	 				dilledMessage = dill.dumps(fullMessage)
 					c = Client(self.ec2ips[index], peerPort, dilledMessage) # send <msg> to localhost at port <peerPort>
-					asyncore.loop(count = 1)
+					asyncore.loop(timeout =5, count = 1)
 
 
 
