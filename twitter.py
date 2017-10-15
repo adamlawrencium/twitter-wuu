@@ -21,6 +21,11 @@ import dill
 import datetime
 from user import User
 
+names_ = [line.rstrip('\n').split(' ')[0] for line in open('EC2-peers.txt')]
+ec2ips_ = [line.rstrip('\n').split(' ')[1] for line in open('EC2-peers.txt')]
+peers_ = [int((line.rstrip('\n')).split(' ')[2]) for line in open('EC2-peers.txt')]
+
+
 class Client(asyncore.dispatcher_with_send):
 	def __init__(self, host, port, message):
 		asyncore.dispatcher.__init__(self)
@@ -71,7 +76,11 @@ class Server(asyncore.dispatcher_with_send):
 		pair = self.accept()
 		if pair is not None:
 			sock, addr = pair
-			print 'Incoming connection from %s' % repr(addr)
+			sender = 0
+			for index, ip in enumerate(ec2ips):
+				if ip == repr(addr)[0]:
+					sender = ip
+			print 'Recieved message from %s' % names_[sender]
 			handler = EchoHandler(sock)
 
 	# def handle_read(self):
