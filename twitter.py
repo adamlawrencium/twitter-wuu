@@ -66,6 +66,8 @@ class Server(asyncore.dispatcher_with_send):
 
 	def handle_accept(self):
 		pair = self.accept()
+		data = self.recv(8192)
+		print data
 		if pair is not None:
 			sock, addr = pair
 			print 'Incoming connection from %s' % repr(addr)
@@ -99,9 +101,10 @@ class myThread (threading.Thread):
 					messageBody = command[:6]
 					utcDatetime = datetime.datetime.utcnow()
 					utcTime = utcDatetime.strftime("%Y-%m-%d %H:%M:%S")
-					messageData = site.tweet(messageBody,utcTime)
-					nonBlockedPorts = site.nonBlocked()
-					self.tweetToAll(command[6:],nonBlockedPorts)
+					messageData = site.tweet(self,messageBody,utcTime)
+					sendingPorts = site.nonBlockedPorts()
+					print sendingPorts
+					self.tweetToAll(command[6:],sendingPorts)
 				elif command == "view":
 					print self.peers
 				elif command == "quit":
@@ -135,14 +138,16 @@ class myThread (threading.Thread):
 	# Connect to all peers send them <msg>
 	def tweetToAll(self, msg,nonBlockedPorts):
 		for peerPort in self.peers: # avoid connecting to self
-			if peerPort != int(sys.argv[1]) and len(nonBlockedPorts) == 0:
+			if peerPort != int(sys.argv[1]) and len(nonBlockedPorts) == len(self.peers):
 				# print "### Sending", msg, "to", peerPort
 				c = Client('', peerPort, msg) # send <msg> to localhost at port <peerPort>
 				asyncore.loop(count = 1)
-			else:
-				if peerPort != int(sys.argv[1]) and len(nonBlockedPorts) > 0 and nonBlockedPorts[i] == (int(peerPort[i][0])-1):
-					c = Client('', peerPort, msg) # send <msg> to localhost at port <peerPort>
-					asyncore.loop(count = 1)
+			# else:
+			# 	check = (peerPort in nonBlockedPorts)
+			# 	print check
+			# 	if peerPort != int(sys.argv[1]) and len(nonBlockedPorts) > 0 and check:
+			# 		c = Client('', peerPort, msg) # send <msg> to localhost at port <peerPort>
+			# 		asyncore.loop(count = 1)
 
 
 
@@ -171,8 +176,6 @@ if __name__ == "__main__":
 	# Create new threads
 	commandThread = myThread("commandThread") # takes in raw_inputs and sends tweets to peers
 	allIds = commandThread.peers
-	for i in range(0,len(allIds)):
-		allIds.append(i)
 	site = User(sys.argv[2][0],allIds)
 	commandThread.setDaemon(True)
 	serverThread = myThread("serverThread") # handles incoming connections from peers
