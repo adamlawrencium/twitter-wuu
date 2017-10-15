@@ -35,14 +35,13 @@ class Client(asyncore.dispatcher_with_send):
 		print 'Received', self.recv(1024)
 		self.close()
 
-	def handle_write(self):
-		# self.send(self.message)
-		# self.close()
-		pass
+	# def handle_write(self):
+	# 	# self.send(self.message)
+	# 	# self.close()
+	# 	pass
 
 	def handle_error(self):
 		print "Can't connect to peer at %s:%s" % (self.host, self.port)
-
 
 
 class EchoHandler(asyncore.dispatcher_with_send):
