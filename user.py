@@ -160,7 +160,9 @@ class User:
             else:
                 if(eventType == "tweet"):
                     acceptableTweets.append(currentEvent)
-        print acceptableTweets
+        for tweet in acceptableTweets:
+            print tweet
+        # print acceptableTweets
 
     def receive(self,message,receivedClock,receivedNP):
         #sentID = -1
