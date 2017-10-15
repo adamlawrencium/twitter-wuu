@@ -170,7 +170,7 @@ class User:
         NE = list()
         for i in range(0,len(receivedNP)):
             pastEvent = receivedNP[i]
-            if(not (self.hasRec(receivedClock,pastEvent,self.userId))):
+            if(not (self.hasRec(self.matrixClock,pastEvent,self.userId))):
                 NE.append(pastEvent)
 
         ##now we truncate the received log before moving forward to insert values into the dictionary
@@ -208,12 +208,14 @@ class User:
         #the m loop goes through the fullUnion of the partialLog and eventRecord
         #the loop checks for all relevant partialLog options
 
+
         for m in range(0,len(fullUnion)):
             currentRecord = fullUnion[m]
             for k in range(0,len(self.peers)):
                 if(not self.hasRec(self.matrixClock,currentRecord,k)):
                     clearedLog.append(currentRecord)
                     break
+
 
         #the eventLog changes to this filled once clearedLog
         self.eventLog = clearedLog
