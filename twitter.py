@@ -112,35 +112,30 @@ class myThread (threading.Thread):
 					self.shutdown_flag = True
 					raise KeyboardInterrupt
 					self.shutdown_flag = True
-				elif command == "unblock ":
+				elif command[:8] == "unblock ":
 					name = command[6:]
 					siteName = sys.argv[2]
-					for i in range(0,len(self.names)):
-						if(name == names[i]):
-							name = self.peers[i]
-							break
 					utc_datetime = datetime.datetime.utcnow()
 					utcTime = utc_datetime.strftime("%Y-%m-%d %H:%M:%S")
-					site.unblock(utcTime,(int(name[0])-1))
+					site.unblock(utcTime,ord(name[0])-65)
 
 				elif command[:6] == "block ":
 					name = command[6:]
 					siteName = sys.argv[2]
-					for i in range(0,len(self.names)):
-						if(name == self.names[i]):
-							name = self.peers[i]
-							break
 					utc_datetime = datetime.datetime.utcnow()
 					utcTime = utc_datetime.strftime("%Y-%m-%d %H:%M:%S")
 					print "Blocking User: "+command[6:]
-					site.block(utcTime,(int(name[0])-1))
+					site.block(utcTime,ord(name[0])-65)
 				elif command == "View Log":
 					site.viewPartialLog()
 				elif command == "View Clock":
 					site.viewMatrixClock()
+				elif command == "View Dictionary":
+					site.viewDictonary()
 
 
 				else:
+					print command
 					print "Unknown command :(. Try again."
 
 		# Start the server the listening for incoming connections
@@ -151,6 +146,7 @@ class myThread (threading.Thread):
 
 	# Connect to all peers send them <msg>
 	def tweetToAll(self, msg,sendingPorts):
+		counter = 0
 		for peerPort in self.peers: # avoid connecting to self
 			if peerPort != int(sys.argv[1]) and len(sendingPorts) == len(self.peers):
 				# print "### Sending", msg, "to", peerPort
@@ -160,13 +156,13 @@ class myThread (threading.Thread):
 				asyncore.loop(count = 1)
 			else:
 				nonBlockedPorts = site.nonBlockedPorts()
-				check = (peerPort in nonBlockedPorts)
-				print check
+				check = (counter in nonBlockedPorts)
 				if peerPort != int(sys.argv[1]) and len(nonBlockedPorts) > 0 and check:
 					fullMessage = site.send(msg,peerPort)
 	 				dilledMessage = dill.dumps(fullMessage)
 					c = Client('', peerPort, dilledMessage) # send <msg> to localhost at port <peerPort>
 					asyncore.loop(count = 1)
+			counter += 1
 
 
 
