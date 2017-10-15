@@ -14,15 +14,21 @@ class User:
      This is the constructor for the User class. A User corresponds to a site.
      @param int,list[int],int
     """""
-    def __init__(self, userId, peers,amount):
+    def __init__(self, userId, peers):
+        self.eventLog = list()
+        self.eventCounter = 0;
+        self.blockedUsers = list()
+        self.matrixClock = list()
+        self.peers = list()
         self.userId = userId
         self.peers = peers
+
         #Initilize matrixClock to all zero values
-        for i in range(0,amount):
+        for i in range(0,len(peers)):
             newList = list()
-            for j in range(0,amount):
+            for j in range(0,len(peers)):
                 newList.append(0)
-                maxtrixClock.append(newList)
+                self.matrixClock.append(newList)
 
     """
     Checks if a matrixClock contains a timestamp larger than what's in the eventRecord.
@@ -59,6 +65,7 @@ class User:
     """"
     @param
         message: a message will come in form of a string
+        time:  UTC time
     @modifies:
         Will modify matrixClock, eventLog. Will send out a message depending
         on what values are not in the blockedUsers list
@@ -69,19 +76,39 @@ class User:
             [2] -> a list containing all the eventRecords
     """
     def tweet(message,time,receiver):
-        print "Sending following tweet "+message+" to all unblocked users\n"
-        eventRecord = insert("tweet",message,time)
+        print "Sending following tweet %s to all unblocked users\n"%(message)
+        eventRecord = self.insert("tweet",message,time)
         NP = list()
+        #Loop here covers send operation, will only store messageData for tweets
+        #that the local site considers unblocked
         for i in range(0,len(eventLog)):
             pastEvent = eventLog[i]
-            if(not (hasRec(matrixClock,currentEvent,receiver))):
-                NP.append(eventRecord,matrixClock,currentEvent,userID)
+            for k in range(0,len(peers)):
+                blocked = False
+                for m in range(0,len(blockedUsers)):
+                    if(blockedUsers[m][0] == userId and blockedUsers[m][1] == m):
+                        blocked = True
+                        break
+                if(not (hasRec(matrixClock,currentEvent,k)) and not blocked):
+                    NP.append(eventRecord,matrixClock,currentEvent,userID)
         sendBody = ((userID,matrixClock,NP))
         return sendBody
 
+    """"
+    The block function will not allow the specificed receiver to recieve
+    any tweets from this local User.
+    @param
+        time:  UTC time
+        receiver: the site that will be blocked
+    @modifies:
+        Will modify matrixClock, eventLog since a new event will be occuring.
+        Will also modify blockedIds and append a new block; unless that block already
+        exists.
+    @return
+        returns nothing
+    """
     def block(time,receiver):
         blocked = False
-        print "Blocked User "+receiver+"\n"
         eventRecord = insert("block",receiver,time)
         ### add truncation code here for log
         for i in range(0,len(blockedUsers)):
@@ -89,7 +116,19 @@ class User:
                 blocked = True
         if(not (blocked)):
             blockedUsers.append((userId,receiver))
-
+    """"
+    The unblock function will allow the specificed user to receive the local
+    Users tweets.
+    @param
+        time:  UTC time
+        receiver: the site that will be unblocked
+    @modifies:
+        Will modify matrixClock, eventLog since a new event will be occuring.
+        Will also modify blockedIds and delete a block; unless that block does
+        not exist
+    @return
+        returns nothing
+    """
     def unblock(time,receiver):
         print "Unblocked User "+receiver+"\n"
         for i in range(0,len(blockedIds)):
@@ -156,3 +195,13 @@ class User:
                     clearedLog.append(currentRecord)
         #the eventLog changes to this filled once clearedLog
         eventLog = clearedLog
+
+    def nonBlockedPorts():
+        nonBlocked = peers
+        for i in range(0,len(blockedUsers)):
+            if blockedUsers[i][0] == userId:
+                for j in range(0,len(nonBlocked)):
+                    if(nonBlocked[i] == blockedUsers[i][0]):
+                        del nonBlocked[i]
+                        break
+        return nonBlocked
