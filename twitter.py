@@ -155,7 +155,7 @@ class myThread (threading.Thread):
 
 
 				else:
-					print "Unknown command :(. Try again."
+					print "Unknown command %s :(. Try again." % (command)
 
 		# Start the server the listening for incoming connections
 		elif self.name == 'serverThread':
@@ -175,7 +175,7 @@ class myThread (threading.Thread):
 			else:
 				nonBlockedPorts = site.nonBlockedPorts()
 				check = (peerPort in nonBlockedPorts)
-				print check
+				# print check
 				if peerPort != int(sys.argv[1]) and len(nonBlockedPorts) > 0 and check:
 					fullMessage = site.send(msg, peerPort)
 	 				dilledMessage = dill.dumps(fullMessage)
