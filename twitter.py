@@ -18,6 +18,7 @@ import time
 import sys
 import asyncore, socket
 import dill
+import pickle
 import datetime
 from user import User
 
@@ -79,7 +80,7 @@ class Server(asyncore.dispatcher_with_send):
 			sender = 0
 			for index, ip in enumerate(ec2ips_):
 				if ip == repr(addr)[0]:
-					sender = ip
+					sender = index
 			print 'Recieved message from %s' % names_[sender]
 			handler = EchoHandler(sock)
 
@@ -222,12 +223,20 @@ if __name__ == "__main__":
 	serverThread = myThread("serverThread") # handles incoming connections from peers
 	serverThread.setDaemon(True)
 
-	# peers are port numbers --> should switch to IP
-	# userId is 'Alice' -> 'A' -> 96
 
 
-	allIds = commandThread.peers
-	site = User(sys.argv[2][0], allIds)
+	# Try loading from pickle file
+	allIds = None
+	site = None
+	try:
+		# Create user from pickle
+		pickledUser = pickle.load( open( "pickledUser.p", "rb" ) )
+		allIds = commandThread.peers
+		site = User(sys.argv[2][0], allIds, True, pickledUser)
+	except IOError:
+		print "Site pickle doesn't exist. Creating user from scratch."
+		allIds = commandThread.peers
+		site = User(sys.argv[2][0], allIds, False)
 
 
 

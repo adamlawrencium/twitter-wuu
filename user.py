@@ -2,33 +2,53 @@ import socket
 import time
 
 class User:
-    eventLog = list()
-    eventCounter = 0;
-    blockedUsers = list()
-    maxtrixClock = list()
-    peers = list()
-    userId = 0
+    # eventLog = list()
+    # eventCounter = 0;
+    # blockedUsers = list()
+    # maxtrixClock = list()
+    # peers = list()
+    # userId = 0
 
 
     """""
      This is the constructor for the User class. A User corresponds to a site.
      @param int,list[int],int
     """""
-    def __init__(self, userId, peers):
-        self.eventLog = list()
-        self.eventCounter = 0;
-        self.blockedUsers = list()
-        self.matrixClock = list()
-        self.peers = list()
-        self.userId = ord(userId) - 65
-        self.peers = peers
+    def __init__(self, userId, peers, pickle=None, pickledUser=None):
+        if pickle:
+            # Load User from pickle
+            self.eventLog = pickledUser['eventLog']
+            self.eventCounter = pickledUser['eventCounter']
+            self.blockedUsers = pickledUser['blockedUsers']
+            self.matrixClock = pickledUser['matrixClock']
+            # self.peers = pickledUser['peers']
+            # self.userId = pickledUser['userId']
+        else:
+            # Create User from scratch
+            self.eventLog = list()
+            self.eventCounter = 0;
+            self.blockedUsers = list()
+            self.matrixClock = list()
+            self.peers = list()
+            self.userId = ord(userId) - 65
 
-        #Initilize matrixClock to all zero values
-        for i in range(0,len(self.peers)):
-            newList = list()
-            for j in range(0,len(self.peers)):
-                newList.append(0)
-            self.matrixClock.append(newList)
+            #Initilize matrixClock to all zero values
+            for i in range(0,len(self.peers)):
+                newList = list()
+                for j in range(0,len(self.peers)):
+                    newList.append(0)
+                self.matrixClock.append(newList)
+
+
+    def pickleSelf(self):
+        pickledSelf = {
+            "eventLog": self.eventLog,
+            "eventCounter": self.eventCounter,
+            "blockedUsers": self.blockedUsers,
+            "matrixClock": self.matrixClock
+        }
+        pickle.dump( favorite_color, open( "pickledUser.p", "wb" ) )
+        print 'I pickled myself'
 
 
     """
@@ -41,8 +61,9 @@ class User:
         If fals is returned the process does not know the most recent event
     """
     def hasRec(self,receivedClock,eventRecord,receiver):
-
         return receivedClock[receiver][eventRecord[3]] >= eventRecord[2]
+        self.pickleSelf()
+
 
     """""
     @param String, String, int
@@ -68,7 +89,9 @@ class User:
         eventRecord = (eventName,message,self.eventCounter,self.userId,time)
 
         self.eventLog.append(eventRecord)
+        self.pickleSelf()
         return eventRecord
+
 
     """"
     @param
@@ -86,6 +109,7 @@ class User:
     def tweet(self,message,time):
 
         eventRecord = self.insertion("tweet",message,time)
+        self.pickleSelf()
         return eventRecord
 
     def send(self,message,receiver):
@@ -97,6 +121,7 @@ class User:
             checkReceived = self.hasRec(mc,pastEvent,receiverId)
             if(not (checkReceived)):
                 NP.append(pastEvent)
+        self.pickleSelf()
         return (message,self.matrixClock,NP)
 
 
@@ -122,6 +147,10 @@ class User:
                 blocked = True
         if(not (blocked)):
             self.blockedUsers.append((self.userId,self.receiver))
+        
+        self.pickleSelf()
+
+
     """"
     The unblock function will allow the specificed user to receive the local
     Users tweets.
@@ -142,6 +171,7 @@ class User:
                 del self.blockedUsers[i]
                 break
         eventRecord = self.insertion("unblock","",time)
+        self.pickleSelf()
 
 
     def view(self):
@@ -163,7 +193,7 @@ class User:
         
         for tweet in acceptableTweets:
             print tweet
-        # print acceptableTweets
+        self.pickleSelf()
 
     def receive(self,message,receivedClock,receivedNP):
         #sentID = -1
@@ -175,7 +205,7 @@ class User:
             pastEvent = receivedNP[i]
             if(not (self.hasRec(self.matrixClock,pastEvent,self.userId))):
                 NE.append(pastEvent)
-
+        
         ##now we truncate the received log before moving forward to insert values into the dictionary
 
         ##After truncating received log, also must truncate partial log
@@ -222,6 +252,7 @@ class User:
 
         #the eventLog changes to this filled once clearedLog
         self.eventLog = clearedLog
+        self.pickleSelf()
 
     def nonBlockedPorts(self):
         nonBlocked = self.peers
@@ -233,12 +264,15 @@ class User:
                     if(nonBlocked[i] == self.blockedUsers[i][0]):
                         del nonBlocked[i]
                         break
+        self.pickleSelf()
         return nonBlocked
 
     def viewMatrixClock(self):
         for i in range(0,len(self.matrixClock)):
             print self.matrixClock[i]
+        self.pickleSelf()
 
     def viewPartialLog(self):
         for i in range(0,len(self.eventLog)):
             print self.eventLog[i]
+        self.pickleSelf()
