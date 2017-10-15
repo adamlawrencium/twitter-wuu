@@ -77,7 +77,7 @@ class Server(asyncore.dispatcher_with_send):
 		if pair is not None:
 			sock, addr = pair
 			sender = 0
-			for index, ip in enumerate(ec2ips):
+			for index, ip in enumerate(ec2ips_):
 				if ip == repr(addr)[0]:
 					sender = ip
 			print 'Recieved message from %s' % names_[sender]
