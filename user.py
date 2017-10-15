@@ -20,7 +20,7 @@ class User:
         self.blockedUsers = list()
         self.matrixClock = list()
         self.peers = list()
-        self.userId =ord(userId) - 65
+        self.userId = ord(userId) - 65
         self.peers = peers
 
         #Initilize matrixClock to all zero values
@@ -160,6 +160,7 @@ class User:
             else:
                 if(eventType == "tweet"):
                     acceptableTweets.append(currentEvent)
+        
         for tweet in acceptableTweets:
             print tweet
         # print acceptableTweets

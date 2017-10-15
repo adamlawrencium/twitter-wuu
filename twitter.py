@@ -89,8 +89,13 @@ class myThread (threading.Thread):
 		# The shutdown_flag is a threading.Event object that indicates whether the thread should be terminated.
 		self.shutdown_flag = False
 		self.name = name
-		self.peers = [int(line.rstrip('\n')) for line in open('peers.txt')]
-		self.names = [line.rstrip('\n') for line in open('names.txt')]
+		# self.peers = [int(line.rstrip('\n')) for line in open('peers.txt')]
+		# self.names = [line.rstrip('\n') for line in open('names.txt')]
+		
+		self.peers = [int(line.rstrip('\n')).split(' ')[2] for line in open('EC2-peers.txt')]
+		self.names = [line.rstrip('\n').split(' ')[0] for line in open('EC2-peers.txt')]
+		self.ec2ips = [line.rstrip('\n').split(' ')[1] for line in open('EC2-peers.txt')]
+
 
 	def run(self):
 		# Enter while loop accepting the following commands
@@ -103,9 +108,9 @@ class myThread (threading.Thread):
 					utcDatetime = datetime.datetime.utcnow()
 					utcTime = utcDatetime.strftime("%Y-%m-%d %H:%M:%S")
 
-					messageData = site.tweet(command[6:],utcTime)
+					messageData = site.tweet(command[6:], utcTime)
 					sendingPorts = site.nonBlockedPorts()
-					self.tweetToAll(messageData,sendingPorts)
+					self.tweetToAll(messageData, sendingPorts)
 				elif command == "view":
 					site.view()
 				elif command == "quit":
@@ -116,7 +121,7 @@ class myThread (threading.Thread):
 					name = command[6:]
 					siteName = sys.argv[2]
 					for i in range(0,len(self.names)):
-						if(name == names[i]):
+						if (name == names[i]):
 							name = self.peers[i]
 							break
 					utc_datetime = datetime.datetime.utcnow()
@@ -127,7 +132,7 @@ class myThread (threading.Thread):
 					name = command[6:]
 					siteName = sys.argv[2]
 					for i in range(0,len(self.names)):
-						if(name == self.names[i]):
+						if (name == self.names[i]):
 							name = self.peers[i]
 							break
 					utc_datetime = datetime.datetime.utcnow()
@@ -145,27 +150,27 @@ class myThread (threading.Thread):
 
 		# Start the server the listening for incoming connections
 		elif self.name == 'serverThread':
-			server = Server('localhost', int(sys.argv[1]))
+			server = Server('0.0.0.0', int(sys.argv[1]))
 			if self.shutdown_flag != True:
 				asyncore.loop()
 
 	# Connect to all peers send them <msg>
-	def tweetToAll(self, msg,sendingPorts):
-		for peerPort in self.peers: # avoid connecting to self
+	def tweetToAll(self, msg, sendingPorts):
+		for index, peerPort in enumerate(self.peers): # avoid connecting to self
 			if peerPort != int(sys.argv[1]) and len(sendingPorts) == len(self.peers):
 				# print "### Sending", msg, "to", peerPort
-				fullMessage = site.send(msg,peerPort)
+				fullMessage = site.send(msg, peerPort)
  				dilledMessage = dill.dumps(fullMessage)
-				c = Client('', peerPort, dilledMessage) # send <msg> to localhost at port <peerPort>
+				c = Client(self.ec2ips[index], peerPort, dilledMessage) # send <msg> to localhost at port 5555
 				asyncore.loop(count = 1)
 			else:
 				nonBlockedPorts = site.nonBlockedPorts()
 				check = (peerPort in nonBlockedPorts)
 				print check
 				if peerPort != int(sys.argv[1]) and len(nonBlockedPorts) > 0 and check:
-					fullMessage = site.send(msg,peerPort)
+					fullMessage = site.send(msg, peerPort)
 	 				dilledMessage = dill.dumps(fullMessage)
-					c = Client('', peerPort, dilledMessage) # send <msg> to localhost at port <peerPort>
+					c = Client(self.ec2ips[index], peerPort, dilledMessage) # send <msg> to localhost at port <peerPort>
 					asyncore.loop(count = 1)
 
 
@@ -188,6 +193,15 @@ def service_shutdown(signum, frame):
 
 if __name__ == "__main__":
 
+	"""
+	program usage:				-change to->
+		arg 0: twitter.py (duh)							--> twitter.py
+		arg 1: local port										--> local port
+		arg 2: name													--> 'Alice'
+
+		local port needs to match port of current EC2 instance
+	"""
+
 	# Register the signal handlers
 	signal.signal(signal.SIGTERM, service_shutdown)
 	signal.signal(signal.SIGINT, service_shutdown)
@@ -198,8 +212,10 @@ if __name__ == "__main__":
 	serverThread = myThread("serverThread") # handles incoming connections from peers
 	serverThread.setDaemon(True)
 
+	# peers are port numbers --> should switch to IP
+	# userId is 'Alice' -> 'A' -> 96
 	allIds = commandThread.peers
-	site = User(sys.argv[2][0],allIds)
+	site = User(sys.argv[2][0], allIds)
 
 
 

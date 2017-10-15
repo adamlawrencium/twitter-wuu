@@ -1,4 +1,5 @@
-Oregon 52.35.85.253
-NVirginia 184.72.171.3
-London 35.176.229.136
-Canada 35.182.214.172
+Alice IP listening_port
+Barry 52.35.85.253 1111
+Curt 35.182.214.172 2222
+Dina 184.72.171.3 3333
+Ed 35.176.229.136 4444
