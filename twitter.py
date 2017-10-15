@@ -35,10 +35,10 @@ class Client(asyncore.dispatcher_with_send):
 		print 'Received', self.recv(1024)
 		self.close()
 
-	def handle_write(self):
-		# self.send(self.message)
-		# self.close()
-		pass
+	# def handle_write(self):
+	# 	self.send(self.message)
+	# 	self.close()
+	# 	pass
 
 	def handle_error(self):
 		print "Can't connect to peer at %s:%s" % (self.host, self.port)
@@ -125,14 +125,14 @@ class ServiceExit(Exception):
 	of all running threads and the main program.
 	"""
 	pass
- 
- 
+
+
 def service_shutdown(signum, frame):
 	print('Caught signal %d' % signum)
 	raise ServiceExit
 
 
-if __name__ == "__main__":	
+if __name__ == "__main__":
 
 	# Register the signal handlers
 	signal.signal(signal.SIGTERM, service_shutdown)
