@@ -246,7 +246,7 @@ class User:
         #The first item in the received message contains the ID of the sender
         sender = message[3]
         fullUnion = self.eventLog + NE
-
+        print self.matrixClock
         for k in range(0,len(self.peers)):
             if self.matrixClock[self.userId][k] > receivedClock[sender][k]:
                 self.maxtrixClock[self.userId][k] = self.matrixClock[self.userId][k]
