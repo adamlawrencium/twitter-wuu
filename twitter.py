@@ -113,10 +113,11 @@ class myThread (threading.Thread):
 					raise KeyboardInterrupt
 					self.shutdown_flag = True
 				elif command[:8] == "unblock ":
-					name = command[6:]
+					name = command[8:]
 					siteName = sys.argv[2]
 					utc_datetime = datetime.datetime.utcnow()
 					utcTime = utc_datetime.strftime("%Y-%m-%d %H:%M:%S")
+					print name
 					site.unblock(utcTime,ord(name[0])-65)
 
 				elif command[:6] == "block ":
