@@ -56,7 +56,7 @@ class Client(asyncore.dispatcher_with_send):
 
 class EchoHandler(asyncore.dispatcher_with_send):
 	def handle_read(self):
-		data = self.recv(8192)
+		data = self.recv(16384)
 		if data:
 			serializedMessage = dill.loads(data)
 

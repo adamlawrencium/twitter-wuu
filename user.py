@@ -238,7 +238,7 @@ class User:
                     print blockReceiver
                     if(self.blockedUsers[j][0] == receiverId and self.blockedUsers[j][1] == blockReceiver):
                         print "Getting rid of blocked event!"
-                        del self.blockedUsers[i]
+                        del self.blockedUsers[j]
                         break
         if(len(self.blockedUsers) == 0):
             self.blockedUsers = list()
