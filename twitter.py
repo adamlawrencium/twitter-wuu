@@ -53,7 +53,6 @@ class Client(asyncore.dispatcher_with_send):
 		print "Can't connect to peer at %s:%s" % (self.host, self.port)
 
 
-
 class EchoHandler(asyncore.dispatcher_with_send):
 	def handle_read(self):
 		data = self.recv(16384)
