@@ -203,6 +203,7 @@ class User:
                 if(eventType == "tweet"):
                     acceptableTweets.append(currentEvent)
         
+        acceptableTweets = sorted(acceptableTweets, key=lambda event: event[4])
         for tweet in acceptableTweets:
             print tweet
         self.pickleSelf()
