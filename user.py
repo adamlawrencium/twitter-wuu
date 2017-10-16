@@ -1,13 +1,14 @@
 import socket
 import time
+import pickle
 
 class User:
-    eventLog = list()
-    eventCounter = 0;
-    blockedUsers = list()
-    maxtrixClock = list()
-    peers = list()
-    userId = 0
+    # eventLog = list()
+    # eventCounter = 0;
+    # blockedUsers = list()
+    # maxtrixClock = list()
+    # peers = list()
+    # userId = 0
 
 
     """""
@@ -21,8 +22,8 @@ class User:
             self.eventCounter = pickledUser['eventCounter']
             self.blockedUsers = pickledUser['blockedUsers']
             self.matrixClock = pickledUser['matrixClock']
-            # self.peers = pickledUser['peers']
-            # self.userId = pickledUser['userId']
+            self.peers = peers
+            self.userId = ord(userId) - 65
         else:
             print 'creating user from scratch'
             # Create User from scratch
@@ -31,6 +32,7 @@ class User:
             self.blockedUsers = list()
             self.matrixClock = list()
             self.peers = list()
+            self.peers = peers
             self.userId = ord(userId) - 65
 
             #Initilize matrixClock to all zero values
@@ -51,8 +53,9 @@ class User:
             "blockedUsers": self.blockedUsers,
             "matrixClock": self.matrixClock
         }
-        pickle.dump( favorite_color, open( "pickledUser.p", "wb" ) )
+        pickle.dump( pickledSelf, open( "pickledUser.p", "wb" ) )
         print 'I pickled myself'
+        # self.printself()
 
 
     """

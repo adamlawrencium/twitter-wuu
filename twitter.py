@@ -232,6 +232,7 @@ if __name__ == "__main__":
 		# Create user from pickle
 		pickledUser = pickle.load( open( "pickledUser.p", "rb" ) )
 		allIds = commandThread.peers
+		# print pickledUser
 		site = User(sys.argv[2][0], allIds, True, pickledUser)
 	except IOError:
 		print "Site pickle doesn't exist. Creating user from scratch."
