@@ -145,18 +145,17 @@ class User:
     @return
         returns nothing
     """
-    def block(time,receiver):
+    def block(self,time,receiver):
         blocked = False
         eventRecord = self.insertion("block",receiver,time)
         ### add truncation code here for log
         for i in range(0,len(self.blockedUsers)):
-            if(self.blockedIds[i][0] == self.userId and self.blockedIds[i][1] == receiver):
+            if(self.blockedUsers[i][0] == self.userId and self.blockedUsers[i][1] == receiver):
                 blocked = True
         if(not (blocked)):
             self.blockedUsers.append((self.userId,self.receiver))
         
         self.pickleSelf()
-
 
     """"
     The unblock function will allow the specificed user to receive the local
@@ -171,13 +170,16 @@ class User:
     @return
         returns nothing
     """
-    def unblock(time,receiver):
-        print "Unblocked User "+receiver+"\n"
-        for i in range(0,len(self.blockedIds)):
-            if(self.blockedIds[i][0] == self.userId and self.blockedIds[i][1] == receiver):
+    def unblock(self,time,receiver):
+        print "Unblocked User %d"%(receiver)
+        for i in range(0,len(self.blockedUsers)):
+            if(self.blockedUsers[i][0] == self.userId and self.blockedUsers[i][1] == receiver):
                 del self.blockedUsers[i]
                 break
-        eventRecord = self.insertion("unblock","",time)
+
+        if(len(self.blockedUsers) == 0):
+            self.blockedUsers = list()
+        eventRecord = self.insertion("unblock",receiver,time)
         self.pickleSelf()
 
 
@@ -191,9 +193,13 @@ class User:
 
             if(len(self.blockedUsers) > 0):
                 if(eventType == "tweet"):
+                    blocked = False
                     for j in range(0,len(self.blockedUsers)):
-                        if(not ((self.blockedUsers[j][0] == self.userId) and (self.blockedUsers[j][1] == eventCreator))):
-                            acceptableTweets.append(currentEvent)
+                        if(((self.blockedUsers[j][0] == eventCreator) and (self.blockedUsers[j][1] == self.userId))):
+                            blocked = True
+                            break
+                    if not blocked:
+                        acceptableTweets.append(currentEvent)
             else:
                 if(eventType == "tweet"):
                     acceptableTweets.append(currentEvent)
@@ -215,23 +221,32 @@ class User:
         
         ##now we truncate the received log before moving forward to insert values into the dictionary
 
-        ##After truncating received log, also must truncate partial log
-
         #This loop updates the local dictionary depending on what was in the received dictionary
+        allBlockingEvents = list()
         for i in range(0,len(NE)):
             blockEvent = NE[i][0]
             blockReceiver = NE[i][1]
             receiverId = NE[i][3]
             if(blockEvent == "block"):
+                print "received block event!"
                 self.blockedUsers.append((receiverId,blockReceiver))
             if(blockEvent == "unblock"):
-                for j in range(0,len(blockedUsers)):
-                    if(blockedUsers[j][0] == receiverId and blockedUsers[j][1] == blockReceiver):
-                        del blockedUsers[i]
+                print "Received unblock event!"
+                for j in range(0,len(self.blockedUsers)):
+                    print receiverId
+                    print blockReceiver
+                    if(self.blockedUsers[j][0] == receiverId and self.blockedUsers[j][1] == blockReceiver):
+                        print "Getting rid of blocked event!"
+                        del self.blockedUsers[i]
                         break
+        if(len(self.blockedUsers) == 0):
+            self.blockedUsers = list()
+
+
         #The first item in the received message contains the ID of the sender
         sender = message[3]
         fullUnion = self.eventLog + NE
+
         for k in range(0,len(self.peers)):
             if self.matrixClock[self.userId][k] > receivedClock[sender][k]:
                 self.maxtrixClock[self.userId][k] = self.matrixClock[self.userId][k]
@@ -262,24 +277,29 @@ class User:
         self.pickleSelf()
 
     def nonBlockedPorts(self):
-        nonBlocked = self.peers
+        nonBlocked = set()
+        for i in range(0,len(self.peers)):
+            nonBlocked.add(i)
 
+        blocked = set()
         for i in range(0,len(self.blockedUsers)):
 
-            if self.blockedUsers[i][0] == self.userId:
-                for j in range(0,len(nonBlocked)):
-                    if(nonBlocked[i] == self.blockedUsers[i][0]):
-                        del nonBlocked[i]
-                        break
+            for j in range(0,len(self.peers)):
+                if self.blockedUsers[i][0] == self.userId and self.blockedUsers[i][1] == j:
+                    blocked.add(j)
+        nonBlocked = nonBlocked - blocked
         self.pickleSelf()
         return nonBlocked
 
     def viewMatrixClock(self):
         for i in range(0,len(self.matrixClock)):
             print self.matrixClock[i]
-        self.pickleSelf()
 
     def viewPartialLog(self):
         for i in range(0,len(self.eventLog)):
             print self.eventLog[i]
-        self.pickleSelf()
+
+    def viewDictonary(self):
+        for i in range(0,len(self.blockedUsers)):
+            print self.blockedUsers[i]
+
