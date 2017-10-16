@@ -40,9 +40,9 @@ class Client(asyncore.dispatcher_with_send):
 	def handle_close(self):
 		self.close()
 
-	def handle_read(self):
-		print 'Received', self.recv(1024)
-		self.close()
+	# def handle_read(self):
+	# 	print 'Received', self.recv(1024)
+	# 	self.close()
 
 	# def handle_write(self):
 	# 	self.send(self.message)
