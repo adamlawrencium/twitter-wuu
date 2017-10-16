@@ -144,7 +144,7 @@ class User:
                 break
         if(len(self.blockedUsers) == 0):
             self.blockedUsers = list()
-        eventRecord = self.insertion("unblock","",time)
+        eventRecord = self.insertion("unblock",receiver,time)
 
 
     def view(self):
@@ -190,27 +190,31 @@ class User:
             blockReceiver = NE[i][1]
             receiverId = NE[i][3]
             if(blockEvent == "block"):
+                print "received block event!"
                 self.blockedUsers.append((receiverId,blockReceiver))
             if(blockEvent == "unblock"):
+                print "Received unblock event!"
                 for j in range(0,len(self.blockedUsers)):
+                    print receiverId
+                    print blockReceiver
                     if(self.blockedUsers[j][0] == receiverId and self.blockedUsers[j][1] == blockReceiver):
-                        print "inside"
+                        print "Getting rid of blocked event!"
                         del self.blockedUsers[i]
                         break
         if(len(self.blockedUsers) == 0):
             self.blockedUsers = list()
-        print self.blockedUsers
-        print "probe"
+
+
         #The first item in the received message contains the ID of the sender
         sender = message[3]
         fullUnion = self.eventLog + NE
-        print "first Clock!"
+
         for k in range(0,len(self.peers)):
             if self.matrixClock[self.userId][k] > receivedClock[sender][k]:
                 self.maxtrixClock[self.userId][k] = self.matrixClock[self.userId][k]
             else:
                 self.matrixClock[self.userId][k] = receivedClock[sender][k]
-        print "whatsup"
+
         clearedLog = list()
         #the combination of k and l will correctly update the matrixClock
         for k in range(0,len(self.peers)):
@@ -221,7 +225,7 @@ class User:
         #the m loop goes through the fullUnion of the partialLog and eventRecord
         #the loop checks for all relevant partialLog options
 
-        print "near done!"
+
         for m in range(0,len(fullUnion)):
             currentRecord = fullUnion[m]
             for k in range(0,len(self.peers)):
@@ -243,9 +247,7 @@ class User:
             for j in range(0,len(self.peers)):
                 if self.blockedUsers[i][0] == self.userId and self.blockedUsers[i][1] == j:
                     blocked.add(j)
-        print blocked
         nonBlocked = nonBlocked - blocked
-        print nonBlocked
         return nonBlocked
 
     def viewMatrixClock(self):
