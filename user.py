@@ -54,7 +54,6 @@ class User:
             "matrixClock": self.matrixClock
         }
         pickle.dump( pickledSelf, open( "pickledUser.p", "wb" ) )
-        print 'I pickled myself'
         # self.printself()
 
 
