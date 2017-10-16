@@ -236,7 +236,7 @@ if __name__ == "__main__":
 	except IOError:
 		print "Site pickle doesn't exist. Creating user from scratch."
 		allIds = commandThread.peers
-		site = User(sys.argv[2][0], allIds, False)
+		site = User(sys.argv[2][0], allIds, False, None)
 
 
 

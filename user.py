@@ -2,12 +2,12 @@ import socket
 import time
 
 class User:
-    # eventLog = list()
-    # eventCounter = 0;
-    # blockedUsers = list()
-    # maxtrixClock = list()
-    # peers = list()
-    # userId = 0
+    eventLog = list()
+    eventCounter = 0;
+    blockedUsers = list()
+    maxtrixClock = list()
+    peers = list()
+    userId = 0
 
 
     """""
@@ -24,9 +24,10 @@ class User:
             # self.peers = pickledUser['peers']
             # self.userId = pickledUser['userId']
         else:
+            print 'creating user from scratch'
             # Create User from scratch
             self.eventLog = list()
-            self.eventCounter = 0;
+            self.eventCounter = 0
             self.blockedUsers = list()
             self.matrixClock = list()
             self.peers = list()
@@ -38,6 +39,9 @@ class User:
                 for j in range(0,len(self.peers)):
                     newList.append(0)
                 self.matrixClock.append(newList)
+
+    def printself(self):
+        print self.eventLog, self.eventCounter, self.blockedUsers, self.matrixClock, self.peers, self.userId
 
 
     def pickleSelf(self):
