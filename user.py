@@ -152,7 +152,7 @@ class User:
             if(self.blockedUsers[i][0] == self.userId and self.blockedUsers[i][1] == receiver):
                 blocked = True
         if(not (blocked)):
-            self.blockedUsers.append((self.userId,self.receiver))
+            self.blockedUsers.append((self.userId,receiver))
         
         self.pickleSelf()
 
