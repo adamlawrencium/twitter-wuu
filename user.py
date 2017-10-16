@@ -128,6 +128,7 @@ class User:
             if(not (checkReceived)):
                 NP.append(pastEvent)
         self.pickleSelf()
+        self.printself()
         return (message,self.matrixClock,NP)
 
 
