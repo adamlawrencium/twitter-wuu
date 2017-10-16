@@ -250,8 +250,12 @@ class User:
         print self.matrixClock
         for k in range(0,len(self.peers)):
             if self.matrixClock[self.userId][k] > receivedClock[sender][k]:
+                print "redundant"
                 self.maxtrixClock[self.userId][k] = self.matrixClock[self.userId][k]
             else:
+                print "extra"
+                print receivedClock
+                print sender
                 self.matrixClock[self.userId][k] = receivedClock[sender][k]
 
         clearedLog = list()
