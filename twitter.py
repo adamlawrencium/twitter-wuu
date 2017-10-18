@@ -80,7 +80,7 @@ class Server(asyncore.dispatcher_with_send):
 			for index, ip in enumerate(ec2ips_):
 				if ip == repr(addr)[0]:
 					sender = index
-			print 'Recieved message from %s' % names_[sender]
+			# print 'Recieved message from %s' % names_[sender]
 			handler = EchoHandler(sock)
 
 	# def handle_read(self):
@@ -132,7 +132,7 @@ class myThread (threading.Thread):
 
 					utc_datetime = datetime.datetime.utcnow()
 					utcTime = utc_datetime.strftime("%Y-%m-%d %H:%M:%S")
-					print name
+					# print name
 					site.unblock(utcTime,ord(name[0])-65)
 
 				elif command[:6] == "block ":

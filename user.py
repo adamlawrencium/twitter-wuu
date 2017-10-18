@@ -128,7 +128,7 @@ class User:
             if(not (checkReceived)):
                 NP.append(pastEvent)
         self.pickleSelf()
-        self.printself()
+        # self.printself()
         return (message,self.matrixClock,NP)
 
 
@@ -171,7 +171,7 @@ class User:
         returns nothing
     """
     def unblock(self,time,receiver):
-        print "Unblocked User %d"%(receiver)
+        print "Unblocked User %d" % (receiver)
         for i in range(0,len(self.blockedUsers)):
             if(self.blockedUsers[i][0] == self.userId and self.blockedUsers[i][1] == receiver):
                 del self.blockedUsers[i]
@@ -234,8 +234,8 @@ class User:
             if(blockEvent == "unblock"):
                 print "Received unblock event!"
                 for j in range(0,len(self.blockedUsers)):
-                    print receiverId
-                    print blockReceiver
+                    # print receiverId
+                    # print blockReceiver
                     if(self.blockedUsers[j][0] == receiverId and self.blockedUsers[j][1] == blockReceiver):
                         print "Getting rid of blocked event!"
                         del self.blockedUsers[j]
@@ -247,15 +247,15 @@ class User:
         #The first item in the received message contains the ID of the sender
         sender = message[3]
         fullUnion = self.eventLog + NE
-        print self.matrixClock
+        # print self.matrixClock
         for k in range(0,len(self.peers)):
             if self.matrixClock[self.userId][k] > receivedClock[sender][k]:
                 # print "redundant"
                 self.matrixClock[self.userId][k] = self.matrixClock[self.userId][k]
             else:
-                print "extra"
-                print receivedClock
-                print sender
+                # print "extra"
+                # print receivedClock
+                # print sender
                 self.matrixClock[self.userId][k] = receivedClock[sender][k]
 
         clearedLog = list()
