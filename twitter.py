@@ -132,7 +132,7 @@ class myThread (threading.Thread):
 
 					utc_datetime = datetime.datetime.utcnow()
 					utcTime = utc_datetime.strftime("%Y-%m-%d %H:%M:%S")
-					print name
+					# print name
 					site.unblock(utcTime,ord(name[0])-65)
 
 				elif command[:6] == "block ":
